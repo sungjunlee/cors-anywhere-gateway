@@ -30,7 +30,7 @@ docker compose up -d  # 프로덕션 컨테이너 실행
 ## Architecture
 
 ```
-클라이언트 → Base64URL encode → gateway/{encoded} → decode → cors-anywhere → 목적지
+클라이언트 → Base64URL encode → gateway/fetch/{encoded} → decode → cors-anywhere → 목적지
 ```
 
 핵심 흐름:
@@ -45,7 +45,11 @@ echo -n "http://example.com/api" | base64 | tr '+/' '-_' | tr -d '='
 # → aHR0cDovL2V4YW1wbGUuY29tL2FwaQ
 
 # 2. 요청
-curl -H "x-api-key: ${API_KEY}" http://localhost:8080/aHR0cDovL2V4YW1wbGUuY29tL2FwaQ
+curl -H "x-api-key: ${API_KEY}" http://localhost:8080/fetch/aHR0cDovL2V4YW1wbGUuY29tL2FwaQ
+
+# Health check
+curl http://localhost:8080/       # {"status":"ok"}
+curl http://localhost:8080/health # {"status":"ok"}
 ```
 
 ## Environment Variables

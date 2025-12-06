@@ -31,8 +31,23 @@ export function startServer(): void {
   });
 
   const server = createServer((req, res) => {
-    const encoded = (req.url || "").slice(1); // remove leading /
+    const url = req.url || "/";
 
+    // Health check / root
+    if (url === "/" || url === "/health") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok" }));
+      return;
+    }
+
+    // Proxy: /fetch/{base64url}
+    if (!url.startsWith("/fetch/")) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Not found. Use /fetch/{base64url}" }));
+      return;
+    }
+
+    const encoded = url.slice(7); // remove "/fetch/"
     if (!encoded) {
       res.writeHead(400, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "Missing encoded URL" }));
@@ -59,6 +74,6 @@ export function startServer(): void {
   server.listen(config.port, "0.0.0.0", () => {
     console.log(`cors-anywhere-gateway running on :${config.port}`);
     console.log(`Auth: ${config.apiKey ? "enabled" : "disabled"}`);
-    console.log(`Usage: /{base64url-encoded-target-url}`);
+    console.log(`Usage: /fetch/{base64url-encoded-target-url}`);
   });
 }
