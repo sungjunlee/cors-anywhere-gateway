@@ -1,0 +1,17 @@
+services:
+  cors-anywhere-gateway:
+    build: .
+    container_name: cors-anywhere-gateway
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - API_KEY=${CORS_GATEWAY_API_KEY:-}
+      - ORIGIN_WHITELIST=${CORS_GATEWAY_ORIGIN_WHITELIST:-}
+      - ORIGIN_BLACKLIST=${CORS_GATEWAY_ORIGIN_BLACKLIST:-}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
